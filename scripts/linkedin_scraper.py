@@ -9,15 +9,13 @@ from pathlib import Path
 from dotenv import load_dotenv
 from playwright.sync_api import sync_playwright, Page
 
-from experience import scrape_experience
-from projects import scrape_projects
+from scrapers import scrapers
 
 load_dotenv(Path(__file__).parent.parent.parent / ".env")
 
 LINKEDIN_USERNAME = os.getenv("LINKEDIN_USERNAME")
 LINKEDIN_PASSWORD = os.getenv("LINKEDIN_PASSWORD")
 LINKEDIN_URL = os.getenv("LINKEDIN_URL")
-
 
 def login(page: Page) -> None:
     if not LINKEDIN_USERNAME or not LINKEDIN_PASSWORD:
@@ -41,55 +39,38 @@ def load_profile(page: Page) -> None:
     page.goto(LINKEDIN_URL, wait_until="domcontentloaded")
     page.wait_for_timeout(1000)
     print("Profile loaded.")
-    
-    
-def load_page_details(page: Page, url: str) -> None:
-    print(f"Navigating to experience details: {url}")
-    page.goto(url, wait_until="domcontentloaded")
-    page.wait_for_timeout(2000)
-    print("Scrolling to load lazy content...")
-    page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
-    page.wait_for_timeout(2000)
-    page.evaluate("window.scrollTo(0, 0)")
-    page.wait_for_timeout(500)
-    print("Page details loaded.")
-
 
 def main():
+    resume_data = {}
     print("Starting LinkedIn scraper...")
-
+    
     with sync_playwright() as p:
         print("Launching browser...")
-        browser = p.chromium.launch(headless=False)
-        context = browser.new_context(
+        context = p.chromium.launch_persistent_context(
+            user_data_dir=str(Path(__file__).parent / "temp" / "linkedin_profile"),
+            channel="chrome",
+            headless=False,
             viewport={"width": 1920, "height": 1080},
             user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         )
+        context.add_init_script("""
+            Object.defineProperty(navigator, 'webdriver', {
+                get: () => undefined,
+            });
+        """)
         page = context.new_page()
 
         try:
             login(page)
             load_profile(page)
-            
-            experience_url = LINKEDIN_URL.rstrip("/") + "/details/experience/"
-            load_page_details(page, experience_url)
-            experiences = scrape_experience(page)
-            page.go_back()
-            
-            projects_url = LINKEDIN_URL.rstrip("/") + "/details/projects/"
-            load_page_details(page, projects_url)
-            projects = scrape_projects(page)
-            page.go_back()
+
+            for name, scraper in scrapers.items():
+                resume_data[name] = scraper(page).scrape()
         finally:
-            browser.close()
+            context.close()
 
-    resume_data = {"experiences": experiences, "projects": projects}
-
-    output_path = Path(__file__).parent / "resume_data.json"
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(resume_data, f, indent=2, default=str)
-    print(f"Saved to {output_path}")
-
+            with open(Path(__file__).parent / "resume_data.json", "w", encoding="utf-8") as f:
+                json.dump(resume_data, f, indent=2, default=str)
 
 if __name__ == "__main__":
     main()
