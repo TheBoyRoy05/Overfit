@@ -1,1 +1,75 @@
-{}
+{
+  "experiences": [
+    {
+      "company": "Data Science Student Society at UC San Diego",
+      "title": "Software Lead",
+      "start": "May 2025",
+      "end": "Present",
+      "description": [
+        "Directed a 10-person engineering team to architect and ship a React/TypeScript membership portal serving 1,000+ users, replacing manual tracking.",
+        "Accelerated deployment cycles and resolved 10+ weekly hotfixes by engineering GitHub Actions CI/CD pipelines and enforcing strict Agile PR reviews.",
+        "Secured member data and event analytics by building a robust Supabase/Postgres backend, implementing complex Row Level Security authentication flows.",
+        "Increased student confidence in industry software tools by 52% [d=1.26, p<0.01] by designing and delivering technical workshops on React, AWS, Docker, and Git/Github."
+      ],
+      "skills": ["React", "Workshop Development", "Databases", "Supabase", "Full-Stack Development", "TypeScript", "PostgreSQL", "Agile Methodologies"]
+    },
+    {
+      "company": "Data Science Student Society at UC San Diego",
+      "title": "Software Developer",
+      "start": "Sep 2024",
+      "end": "May 2025",
+      "description": [
+        "Built responsive frontend features for club websites using React.",
+        "Led a workshop on developing a personal portfolio site, guiding students through design, layout, and deployment best practices.",
+        "Collaborated with a cross-functional team to deliver clean, user-friendly interfaces for student organizations."
+      ],
+      "skills": ["Responsive Web Design", "React", "TypeScript", "Front-End Development", "Front-End Design"]
+    },
+    {
+      "company": "Neurocrine Biosciences",
+      "title": "Data Engineer Intern",
+      "start": "Jun 2025",
+      "end": "Sep 2025",
+      "description": [
+        "Saved $100k+ in annual vendor costs by independently architecting and deploying a containerized data ingestion scraper on AWS ECS and Lambda.",
+        "Saved 50+ hours monthly by engineering an AI pipeline with AWS Bedrock and Redshift, transforming raw patient data into automated clinical narratives.",
+        "Standardized deployments by building multi-environment CI/CD workflows and provisioning infrastructure as code (IaC) using Terraform and AWS Lambda.",
+        "Garnered 1,000+ monthly views by developing interactive PowerBI dashboards, directly integrating AWS S3 and Redshift to visualize clinical data."
+      ],
+      "skills": ["Amazon Web Services (AWS)", "Docker", "Cloud Computing", "Databases", "Terraform", "Data Pipelines", "PowerBI"]
+    },
+    {
+      "company": "San Diego County Taxpayers Association",
+      "title": "Data Science Intern",
+      "start": "Oct 2024",
+      "end": "Jan 2025",
+      "description": [
+        "Supported evidence-based policymaking by building an NLP data pipeline using Playwright and Hugging Face Transformers for sentiment analysis.",
+        "Increased transparency on municipal spending by designing interactive Python (Pandas, Plotly Dash) visualizations for non-technical stakeholders."
+      ],
+      "skills": ["Statistics", "Data Analytics", "Web Scraping", "Playwright", "Python"]
+    },
+    {
+      "company": "theCoderSchool",
+      "title": "Code Coach",
+      "start": "Jun 2024",
+      "end": "Oct 2024",
+      "description": [
+        "Led 4 week-long summer camps, teaching Python fundamentals to over 50 students ages 6–17 through hands-on projects and games.",
+        "Provided 1-on-1 tutoring in Lua for Roblox game development, helping students apply programming concepts to interactive, real-world applications.",
+        "Fostered a fun and supportive learning environment that encouraged curiosity, problem-solving, and creativity in young coders."
+      ],
+      "skills": ["Tutoring", "Lua", "Leadership", "Teaching", "Python"]
+    },
+    {
+      "company": "Mathnasium - The Math Learning Center",
+      "title": "Mathematics Tutor",
+      "start": "Jul 2022",
+      "end": "Jun 2024",
+      "description": [
+        "Shared my love of math with many kids, inspiring them to see the beauty in it rather than it being a chore."
+      ],
+      "skills": []
+    }
+  ]
+}

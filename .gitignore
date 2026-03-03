@@ -28,3 +28,15 @@ dist-ssr
 .venv
 __pycache__
 temp
+
+# LaTeX
+*.aux
+*.log
+*.out
+*.toc
+*.lot
+*.lof
+*.lot.aux
+*.lof.aux
+*.fls
+*.fdb_latexmk
