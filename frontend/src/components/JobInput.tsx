@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, Loader2, ChevronDown } from "lucide-react";
+import { Link, Loader2, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useFetchJobDescription } from "@/hooks/useFetchJobDescription";
@@ -11,11 +11,29 @@ interface JobInputProps {
   isGenerating: boolean;
 }
 
+function isValidJobUrl(url: string): boolean {
+  const trimmed = url.trim();
+  if (!trimmed) return false;
+  try {
+    const u = new URL(trimmed);
+    if (u.protocol !== "http:" && u.protocol !== "https:") return false;
+    const host = u.hostname.toLowerCase();
+    return (
+      host.includes(".myworkdayjobs.com") ||
+      host.includes(".myworkdaysite.com") ||
+      host.includes("workday.com")
+    );
+  } catch {
+    return false;
+  }
+}
+
 const JobInput = ({ jobDescription, setJobDescription, onGenerate, isGenerating }: JobInputProps) => {
   const [url, setUrl] = useState("");
   const [showManual, setShowManual] = useState(false);
   const { toast } = useToast();
   const { isFetching, fetchJobDescription } = useFetchJobDescription();
+  const hasValidLink = isValidJobUrl(url);
 
   const handleFetch = async () => {
     const result = await fetchJobDescription(url);
@@ -57,8 +75,8 @@ const JobInput = ({ jobDescription, setJobDescription, onGenerate, isGenerating 
         </div>
         <Button
           onClick={handleFetch}
-          disabled={isFetching || !url.trim()}
-          variant="secondary"
+          disabled={!hasValidLink || isFetching}
+          variant={hasValidLink ? "default" : "secondary"}
           className="font-mono text-xs shrink-0"
         >
           {isFetching ? <Loader2 size={14} className="animate-spin mr-1.5" /> : null}
@@ -78,6 +96,15 @@ const JobInput = ({ jobDescription, setJobDescription, onGenerate, isGenerating 
 
       {showManual && (
         <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => setShowManual(false)}
+              className="flex items-center gap-1.5 text-xs font-mono text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <ChevronUp size={12} />
+              Collapse
+            </button>
+          </div>
           <textarea
             value={jobDescription}
             onChange={(e) => setJobDescription(e.target.value)}
@@ -90,7 +117,7 @@ const JobInput = ({ jobDescription, setJobDescription, onGenerate, isGenerating 
 
       <Button
         onClick={onGenerate}
-        disabled={isGenerating || !jobDescription.trim()}
+        disabled={isGenerating || jobDescription.trim().length < 200}
         className="w-full font-mono text-sm mt-2 glow-green"
       >
         {isGenerating ? (
