@@ -28,6 +28,7 @@ dist-ssr
 .venv
 __pycache__
 temp
+.temp
 
 # LaTeX
 *.aux
