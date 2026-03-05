@@ -38,6 +38,7 @@ interface AuthStore {
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signUp: (email: string, password: string, profile: ProfileInput) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
+  updateProfile: (profile: ProfileInput) => Promise<{ error: Error | null }>;
   refreshProfile: () => Promise<void>;
   init: () => () => void;
 }
@@ -75,6 +76,24 @@ export const useAuthStore = create<AuthStore>((set) => ({
   signOut: async () => {
     await supabase.auth.signOut();
     set({ profile: null });
+  },
+
+  updateProfile: async (profileData: ProfileInput) => {
+    const { data: { user }, error } = await supabase.auth.updateUser({
+      data: {
+        name: profileData.name || null,
+        personal_website: profileData.personal_website || null,
+        github: profileData.github || null,
+        linkedin: profileData.linkedin || null,
+        email: profileData.email || null,
+        phone: profileData.phone || null,
+        hobbies: profileData.hobbies || null,
+      },
+    });
+    if (!error && user) {
+      set({ profile: profileFromUserMetadata(user) });
+    }
+    return { error: error as Error | null };
   },
 
   refreshProfile: async () => {

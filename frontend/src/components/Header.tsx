@@ -1,12 +1,27 @@
 import { Link } from "react-router-dom";
-import { Code, LogIn, LogOut, UserPlus } from "lucide-react";
+import { ChevronDown, Code, LogIn, LogOut, User, UserPlus } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Header = () => {
   const user = useAuthStore((s) => s.user);
   const profile = useAuthStore((s) => s.profile);
   const signOut = useAuthStore((s) => s.signOut);
+
+  const displayName = profile?.name || user?.email?.split("@")[0] || "User";
+  const initials = displayName
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
 
   return (
     <header className="w-full border-b border-border py-4 px-6">
@@ -22,17 +37,36 @@ const Header = () => {
         </Link>
         <nav className="flex items-center gap-2">
           {user ? (
-            <>
-              {profile?.name && (
-                <span className="text-sm text-muted-foreground hidden sm:inline">
-                  {profile.name}
-                </span>
-              )}
-              <Button variant="ghost" size="sm" onClick={() => signOut()}>
-                <LogOut className="size-4 mr-1" />
-                Sign out
-              </Button>
-            </>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="flex items-center gap-2 px-2 group">
+                  <Avatar className="h-8 w-8">
+                    <AvatarFallback className="text-xs bg-primary/10 text-primary group-hover:text-black/80 group-hover:bg-black/20 transition-colors">
+                      {initials}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="text-sm font-medium hidden sm:inline max-w-[120px] truncate">
+                    {displayName}
+                  </span>
+                  <ChevronDown className="size-4 text-muted-foreground hidden sm:block" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem asChild>
+                  <Link to="/profile" className="flex items-center cursor-pointer">
+                    <User className="size-4 mr-2" />
+                    Profile
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => signOut()}
+                  className="text-destructive focus:text-destructive cursor-pointer"
+                >
+                  <LogOut className="size-4 mr-2" />
+                  Sign out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
             <>
               <Button variant="ghost" size="sm" asChild>
