@@ -305,7 +305,13 @@ async function run() {
       projects: stored.projects || [],
     };
 
-    chrome.runtime.sendMessage({ type: "SCRAPE_COMPLETE", data: resume });
+    chrome.runtime.sendMessage({ type: "SCRAPE_COMPLETE", data: resume }, (response) => {
+      if (response?.error) {
+        alert("Resume Engine: Scrape failed – " + response.error);
+      } else {
+        alert("Resume Engine: LinkedIn profile saved successfully!");
+      }
+    });
 
     await chrome.storage.local.remove(STORAGE_KEY);
   }
@@ -313,5 +319,7 @@ async function run() {
 
 run().catch((e) => {
   console.error("Resume Engine scraper error:", e);
-  chrome.runtime.sendMessage({ type: "SCRAPE_FAILED", error: e.message });
+  chrome.runtime.sendMessage({ type: "SCRAPE_FAILED", error: e.message }, () => {
+    alert("Resume Engine: Scrape failed – " + e.message);
+  });
 });
