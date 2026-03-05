@@ -147,7 +147,7 @@
     },
     {
       "title": "Neural Nector",
-      "link": "https://www.issacroy.com/neural-nector",
+      "link": "https://www.issacroy.com/",
       "start": "Dec 2025",
       "end": "Jan 2026",
       "description": [
@@ -177,7 +177,7 @@
     },
     {
       "title": "Turbo3D",
-      "link": "https://www.issacroy.com/turbo-3d",
+      "link": "https://github.com/TheBoyRoy05/Turbo-3D",
       "start": "Feb 2025",
       "end": "Apr 2025",
       "description": [
@@ -190,7 +190,7 @@
     },
     {
       "title": "YipYap: The Chat App for Yappers",
-      "link": "https://www.issacroy.com/yipyap",
+      "link": "https://www.issacroy.com/",
       "start": "Aug 2024",
       "end": "Nov 2024",
       "description": [
@@ -411,14 +411,6 @@
     "Redux.js",
     "SASS",
     "jQuery",
-    "Bootstrap (Framework)",
-    "npm",
-    "Node.js",
-    "Express.js",
-    "Mongoose ODM",
-    "Web Services API",
-    "Git BASH",
-    "Relational Databases",
-    "Tutoring"
+    "Bootstrap (Framework)"
   ]
 }
