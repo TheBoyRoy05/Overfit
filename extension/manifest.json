@@ -1,0 +1,37 @@
+{
+  "manifest_version": 3,
+  "name": "Resume Engine - LinkedIn Scraper",
+  "version": "1.0.0",
+  "description": "Scrape your LinkedIn profile and save to Resume Engine",
+  "permissions": ["storage", "activeTab", "scripting", "notifications"],
+  "host_permissions": [
+    "https://www.linkedin.com/*",
+    "http://localhost/*",
+    "http://127.0.0.1/*",
+    "http://*/*",
+    "https://*/*"
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://localhost/*",
+        "http://127.0.0.1/*",
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": ["content-app.js"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["https://www.linkedin.com/in/*"],
+      "js": ["content-linkedin.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

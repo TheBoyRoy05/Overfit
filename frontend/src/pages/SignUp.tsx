@@ -33,7 +33,15 @@ const signUpSchema = z
     name: z.string().min(1, "Name is required"),
     personal_website: z.string().optional(),
     github: z.string().optional(),
-    linkedin: z.string().optional(),
+    linkedin: z
+      .string()
+      .min(1, "LinkedIn URL is required")
+      .refine((val) => !/linkedin\.com\/me\/?$/.test(val.trim()), {
+        message: "Use your full profile URL (e.g. linkedin.com/in/yourname), not linkedin.com/me",
+      })
+      .refine((val) => /^(https?:\/\/)?(www\.)?linkedin\.com\/in\/[^/]+/.test(val.trim()), {
+        message: "Enter a valid LinkedIn profile URL (e.g. https://linkedin.com/in/username)",
+      }),
     profile_email: z.union([z.string().email(), z.literal("")]).optional(),
     phone: z.string().optional(),
     hobbies: z.string().optional(),
@@ -200,7 +208,7 @@ const SignUp = () => {
                   name="linkedin"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>LinkedIn</FormLabel>
+                      <FormLabel>LinkedIn *</FormLabel>
                       <FormControl>
                         <Input
                           type="url"

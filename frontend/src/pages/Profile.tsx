@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useAuthStore } from "@/stores/authStore";
+import { supabase, supabaseUrl, supabaseAnonKey } from "@/utils/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -30,7 +31,15 @@ const profileSchema = z.object({
   name: z.string().min(1, "Name is required"),
   personal_website: z.string().optional(),
   github: z.string().optional(),
-  linkedin: z.string().optional(),
+  linkedin: z
+    .string()
+    .min(1, "LinkedIn URL is required")
+    .refine((val) => !/linkedin\.com\/me\/?$/.test(val.trim()), {
+      message: "Use your full profile URL (e.g. linkedin.com/in/yourname), not linkedin.com/me",
+    })
+    .refine((val) => /^(https?:\/\/)?(www\.)?linkedin\.com\/in\/[^/]+/.test(val.trim()), {
+      message: "Enter a valid LinkedIn profile URL (e.g. https://linkedin.com/in/username)",
+    }),
   profile_email: z.union([z.string().email(), z.literal("")]).optional(),
   phone: z.string().optional(),
   hobbies: z.string().optional(),
@@ -78,6 +87,58 @@ const Profile = () => {
       navigate("/sign-in");
     }
   }, [user, loading, navigate]);
+
+  const connectExtension = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    const linkedinUrl = form.getValues("linkedin") || profile?.linkedin;
+    if (!session || !supabaseUrl || !supabaseAnonKey) {
+      toast({
+        title: "Connection failed",
+        description: "Please sign in first.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (!linkedinUrl?.trim()) {
+      toast({
+        title: "LinkedIn required",
+        description: "Save your LinkedIn URL in the profile first.",
+        variant: "destructive",
+      });
+      return;
+    }
+    const normalizedLinkedin = linkedinUrl.trim().startsWith("http")
+      ? linkedinUrl.trim()
+      : `https://${linkedinUrl.trim()}`;
+    window.postMessage(
+      {
+        type: "RESUME_ENGINE_CONNECT",
+        session: session,
+        supabaseUrl,
+        supabaseAnonKey,
+        linkedin: normalizedLinkedin,
+      },
+      "*"
+    );
+    window.addEventListener(
+      "message",
+      (e) => {
+        if (e.data?.type === "RESUME_ENGINE_CONNECTED") {
+          if (e.data.success) {
+            toast({ title: "Extension connected", description: "You can now scrape your LinkedIn profile." });
+          } else {
+            toast({
+              title: "Connection failed",
+              description: "Make sure the Resume Engine extension is installed.",
+              variant: "destructive",
+            });
+          }
+        }
+      },
+      { once: true }
+    );
+    toast({ title: "Connecting...", description: "If the extension is installed, it should connect." });
+  };
 
   const onSubmit = async (values: ProfileFormValues) => {
     const { error } = await updateProfile({
@@ -187,7 +248,7 @@ const Profile = () => {
                     name="linkedin"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>LinkedIn</FormLabel>
+                        <FormLabel>LinkedIn *</FormLabel>
                         <FormControl>
                           <Input
                             type="url"
@@ -257,6 +318,15 @@ const Profile = () => {
                 <Button type="submit" className="w-full">
                   Save changes
                 </Button>
+                <div className="w-full border-t pt-4">
+                  <p className="text-sm font-medium mb-2">Browser Extension</p>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Connect the Resume Engine extension to scrape your LinkedIn profile and save it here.
+                  </p>
+                  <Button type="button" variant="outline" className="w-full" onClick={connectExtension}>
+                    Connect Extension
+                  </Button>
+                </div>
                 <p className="text-sm text-muted-foreground text-center">
                   <Link to="/" className="text-primary hover:underline">
                     Back to home

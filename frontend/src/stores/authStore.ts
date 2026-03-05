@@ -15,6 +15,7 @@ function profileFromUserMetadata(user: User | null): Profile | null {
     email: m.email ?? null,
     phone: m.phone ?? null,
     hobbies: m.hobbies ?? null,
+    resume: m.resume ?? undefined,
     created_at: user.created_at,
     updated_at: user.updated_at ?? user.created_at,
   };
@@ -30,6 +31,14 @@ interface ProfileInput {
   hobbies: string;
 }
 
+export interface ResumeData {
+  education?: Array<{ school: string; degree: string; start: string; end: string; grade?: string | null }>;
+  experiences?: Array<Record<string, unknown>>;
+  certifications?: Array<Record<string, unknown>>;
+  skills?: string[];
+  projects?: Array<Record<string, unknown>>;
+}
+
 interface AuthStore {
   user: User | null;
   session: Session | null;
@@ -39,6 +48,7 @@ interface AuthStore {
   signUp: (email: string, password: string, profile: ProfileInput) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   updateProfile: (profile: ProfileInput) => Promise<{ error: Error | null }>;
+  updateResume: (resume: ResumeData) => Promise<{ error: Error | null }>;
   refreshProfile: () => Promise<void>;
   init: () => () => void;
 }
@@ -93,6 +103,13 @@ export const useAuthStore = create<AuthStore>((set) => ({
     if (!error && user) {
       set({ profile: profileFromUserMetadata(user) });
     }
+    return { error: error as Error | null };
+  },
+
+  updateResume: async (resume: ResumeData) => {
+    const { error } = await supabase.auth.updateUser({
+      data: { resume },
+    });
     return { error: error as Error | null };
   },
 

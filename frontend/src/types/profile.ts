@@ -7,6 +7,7 @@ export interface Profile {
   email: string | null;
   phone: string | null;
   hobbies: string | null;
+  resume?: unknown;
   created_at: string;
   updated_at: string;
 }

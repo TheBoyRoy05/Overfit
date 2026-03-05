@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      body {
+        width: 280px;
+        padding: 16px;
+        font-family: system-ui, sans-serif;
+        font-size: 14px;
+      }
+      h2 {
+        margin: 0 0 12px;
+        font-size: 16px;
+      }
+      p {
+        margin: 0 0 12px;
+        color: #666;
+      }
+      button {
+        width: 100%;
+        padding: 10px 16px;
+        margin-bottom: 8px;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        cursor: pointer;
+        background: #0a66c2;
+        color: white;
+      }
+      button:hover {
+        background: #004182;
+      }
+      button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+      button.secondary {
+        background: #e8e8e8;
+        color: #333;
+      }
+      button.secondary:hover {
+        background: #ddd;
+      }
+      .status {
+        margin-top: 12px;
+        padding: 8px;
+        border-radius: 4px;
+        font-size: 12px;
+      }
+      .status.success { background: #d4edda; color: #155724; }
+      .status.error { background: #f8d7da; color: #721c24; }
+      .status.info { background: #d1ecf1; color: #0c5460; }
+    </style>
+  </head>
+  <body>
+    <h2>Resume Engine</h2>
+    <p id="authStatus">Checking auth...</p>
+    <p id="help" class="help" style="display:none; font-size:12px; color:#666; margin-bottom:8px;">
+      Sign in on the website, go to Profile, click "Connect Extension", then click Refresh above.
+    </p>
+    <button id="signIn" disabled>Sign in to Resume Engine</button>
+    <button id="refresh" class="secondary">Refresh connection status</button>
+    <button id="scrape" disabled>Scrape LinkedIn Profile</button>
+    <div id="status"></div>
+    <script src="popup.js"></script>
+  </body>
+</html>
