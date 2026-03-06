@@ -16,7 +16,8 @@ Schema:
 {
   "company": "string (company name, e.g. ResMed, Capital One)",
   "roleId": "string (job identifier from URL path, e.g. JR_047750, R218625)",
-  "rate": "string or null (raw rate as written, e.g. \\"$174,000 - $174,000/year\\", \\"$23.25 - $42.75/hour\\", \\"$8,000/month\\". Omit if not found)"
+  "rate": "string or null (raw rate as written, e.g. \\"$174,000 - $174,000/year\\", \\"$23.25 - $42.75/hour\\". Omit if not found)",
+  "skills": ["string"] (relevant skills from the job: programming languages, tools, frameworks, domain expertise. Max 20. Only skills explicitly mentioned or strongly implied)"
 }`;
 
 export function buildExtractPrompt(url: string, excerpt: string): string {

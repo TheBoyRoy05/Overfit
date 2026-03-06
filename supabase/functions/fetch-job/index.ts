@@ -9,7 +9,9 @@ import { parseRateToHourly } from "./rate-parser.ts";
 const OPENROUTER_API = "https://openrouter.ai/api/v1/chat/completions";
 const TRINITY_MODEL = "arcee-ai/trinity-large-preview:free";
 
-async function callLLM(prompt: string): Promise<{ company?: string; roleId?: string; rate?: string | null } | null> {
+async function callLLM(
+  prompt: string,
+): Promise<{ company?: string; roleId?: string; rate?: string | null; skills?: string[] } | null> {
   const apiKey = Deno.env.get("LLM_KEY");
   if (!apiKey) return null;
 
@@ -24,7 +26,7 @@ async function callLLM(prompt: string): Promise<{ company?: string; roleId?: str
         model: TRINITY_MODEL,
         messages: [{ role: "user", content: prompt }],
         stream: false,
-        max_tokens: 1024,
+        max_tokens: 2048,
         temperature: 0.2,
       }),
     });
@@ -42,10 +44,15 @@ async function callLLM(prompt: string): Promise<{ company?: string; roleId?: str
     }
 
     const parsed = JSON.parse(text);
+    const skills = parsed.skills;
+    const skillsArr = Array.isArray(skills)
+      ? skills.filter((s): s is string => typeof s === "string").slice(0, 20)
+      : undefined;
     return {
       company: parsed.company ?? undefined,
       roleId: parsed.roleId ?? parsed.role_id ?? undefined,
       rate: parsed.rate ?? null,
+      skills: skillsArr,
     };
   } catch {
     return null;
@@ -137,6 +144,7 @@ Deno.serve(async (req: Request) => {
         company,
         roleId,
         hourly_range,
+        skills: llmResult?.skills ?? null,
       }),
       { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
     );
