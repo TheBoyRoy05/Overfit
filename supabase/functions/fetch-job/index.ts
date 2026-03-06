@@ -35,6 +35,7 @@ async function callLLM(
 
     const data = await response.json();
     let text = data?.choices?.[0]?.message?.content ?? "";
+    console.log("[fetch-job] LLM raw response:", text);
 
     const codeBlockMatch = text.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/);
     if (codeBlockMatch) {
@@ -44,6 +45,7 @@ async function callLLM(
     }
 
     const parsed = JSON.parse(text);
+    console.log("[fetch-job] LLM parsed:", JSON.stringify(parsed));
     const skills = parsed.skills;
     const skillsArr = Array.isArray(skills)
       ? skills.filter((s): s is string => typeof s === "string").slice(0, 20)

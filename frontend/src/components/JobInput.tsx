@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link as LinkIcon, Loader2, ChevronDown, ChevronUp } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useFetchJobDescription } from "@/hooks/useFetchJobDescription";
-import { parseJobUrl, parseHourlyRange, formatHourlyRange } from "@/lib/job-url";
+import { formatHourlyRange, parseManualHourlyRange } from "@/lib/hourly-range";
 import useRoleStore from "@/stores/roleStore";
 
 interface JobInputProps {
@@ -16,18 +16,12 @@ interface JobInputProps {
   hasResume?: boolean;
 }
 
-function isValidJobUrl(url: string): boolean {
+function isValidUrl(url: string): boolean {
   const trimmed = url.trim();
   if (!trimmed) return false;
   try {
     const u = new URL(trimmed);
-    if (u.protocol !== "http:" && u.protocol !== "https:") return false;
-    const host = u.hostname.toLowerCase();
-    return (
-      host.includes(".myworkdayjobs.com") ||
-      host.includes(".myworkdaysite.com") ||
-      host.includes("workday.com")
-    );
+    return u.protocol === "http:" || u.protocol === "https:";
   } catch {
     return false;
   }
@@ -39,14 +33,7 @@ const JobInput = ({ onGenerate, isGenerating, hasResume = true }: JobInputProps)
   const { toast } = useToast();
 
   const { isFetching, fetchJobDescription } = useFetchJobDescription();
-
-  // Sync parsed company/roleId when link changes (company displayed without underscores)
-  useEffect(() => {
-    const { company: c, roleId: r } = parseJobUrl(role.link);
-    role.setCompany(c.replace(/_/g, " "));
-    role.setRoleId(r);
-  }, [role.link, role.role]);
-  const hasValidLink = isValidJobUrl(role.link);
+  const hasValidLink = isValidUrl(role.link);
 
   const handleFetch = async () => {
     const result = await fetchJobDescription(role.link);
@@ -56,8 +43,12 @@ const JobInput = ({ onGenerate, isGenerating, hasResume = true }: JobInputProps)
         ? `Job Title: ${result.title}\n\n${result.description}`
         : result.description;
       role.setDescription(text);
-      if (result.title) role.setRole(result.title);
+      if (result.title) role.setTitle(result.title);
+      role.setCompany((result.company ?? "unknown").replace(/_/g, " "));
+      role.setRoleId(result.roleId ?? "manual");
       role.setHourlyRange(result.hourly_range ?? null);
+      role.setLocations(result.locations ?? null);
+      role.setSkills(result.skills ?? null);
       setShowManual(true);
       toast({
         title: "Job description fetched",
@@ -142,8 +133,8 @@ const JobInput = ({ onGenerate, isGenerating, hasResume = true }: JobInputProps)
             <div className="space-y-2">
               <Label className="text-xs font-mono text-muted-foreground">Role Title</Label>
               <Input
-                value={role.role}
-                onChange={(e) => role.setRole(e.target.value)}
+                value={role.title}
+                onChange={(e) => role.setTitle(e.target.value)}
                 placeholder="e.g. Software Engineering Intern"
                 className="font-mono text-sm"
               />
@@ -152,9 +143,7 @@ const JobInput = ({ onGenerate, isGenerating, hasResume = true }: JobInputProps)
               <Label className="text-xs font-mono text-muted-foreground">Hourly Range</Label>
               <Input
                 value={formatHourlyRange(role.hourly_range)}
-                onChange={(e) =>
-                  role.setHourlyRange(parseHourlyRange(e.target.value, { allowPlainNumbers: true }))
-                }
+                onChange={(e) => role.setHourlyRange(parseManualHourlyRange(e.target.value))}
                 placeholder="e.g. 25 - 35"
                 className="font-mono text-sm"
               />
@@ -165,6 +154,24 @@ const JobInput = ({ onGenerate, isGenerating, hasResume = true }: JobInputProps)
                 value={role.roleId}
                 onChange={(e) => role.setRoleId(e.target.value)}
                 placeholder="manual"
+                className="font-mono text-sm"
+              />
+            </div>
+            <div className="space-y-2 col-span-2">
+              <Label className="text-xs font-mono text-muted-foreground">Locations (semicolon separated)</Label>
+              <Input
+                value={role.locations?.join("; ") ?? ""}
+                onChange={(e) => role.setLocations(e.target.value.split(";").map((s) => s.trim()))}
+                placeholder="e.g. San Francisco, CA; New York, NY"
+                className="font-mono text-sm"
+              />
+            </div>
+            <div className="space-y-2 col-span-2">
+              <Label className="text-xs font-mono text-muted-foreground">Skills (comma separated)</Label>
+              <Input
+                value={role.skills?.join(", ") ?? ""}
+                onChange={(e) => role.setSkills(e.target.value.split(",").map((s) => s.trim()))}
+                placeholder="e.g. React, Node.js, Python"
                 className="font-mono text-sm"
               />
             </div>

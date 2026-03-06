@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { Copy, Download, FileText, Check, Save, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { buildLatexFromMatcherResult, type MatcherJsonResult } from "@/lib/latex-builder";
-import { buildRolesStoragePath, buildResumeFileName, parseJobUrl } from "@/lib/job-url";
+import { buildRolesStoragePath, buildResumeFileName } from "@/lib/storage-path";
 import { supabase } from "@/lib/supabase";
 import useRoleStore from "@/stores/roleStore";
 import type { MatcherResult } from "@/pages/Index";
@@ -56,9 +56,8 @@ const LatexOutput = ({ matcherResult, profile, userId = null }: LatexOutputProps
       setResumeTex(latexContent);
       // Auto-save on first generation (use parsed values if editable ones not yet synced)
       if (userId) {
-        const { company: c, roleId: r } = parseJobUrl(link);
         const fileName = buildResumeFileName(profile?.name);
-        const path = buildRolesStoragePath(userId, company || c, roleId || r, fileName);
+        const path = buildRolesStoragePath(userId, company || "unknown", roleId || "manual", fileName);
         supabase.storage
           .from("Roles")
           .upload(path, latexContent, { contentType: "text/plain", upsert: true })
@@ -94,7 +93,7 @@ const LatexOutput = ({ matcherResult, profile, userId = null }: LatexOutputProps
     setSaving(true);
     try {
       const fileName = buildResumeFileName(profile?.name);
-      const path = buildRolesStoragePath(userId, company, roleId, fileName);
+      const path = buildRolesStoragePath(userId, company || "unknown", roleId || "manual", fileName);
       const { error } = await supabase.storage.from("Roles").upload(path, resumeTex, {
         contentType: "text/plain",
         upsert: true,

@@ -11,7 +11,8 @@ export interface ExtractedHtml {
 
 /**
  * Extract locations from <div data-automation-id="locations">.
- * Workday uses this for job locations.
+ * Workday structure: <dl><dt>locations</dt><dd>San Diego, CA, United States</dd></dl>
+ * Each <dd> contains one full location string.
  */
 function extractLocations(html: string): string[] {
   const locations: string[] = [];
@@ -33,6 +34,16 @@ function extractLocations(html: string): string[] {
       depth--;
       if (depth === 0) {
         const inner = html.slice(startIdx, closeDiv);
+        // Workday: each <dd> = one location (e.g. "San Diego, CA, United States")
+        const ddRe = /<dd[^>]*>([\s\S]*?)<\/dd>/gi;
+        let ddMatch = ddRe.exec(inner);
+        while (ddMatch) {
+          const loc = ddMatch[1].replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+          if (loc.length > 2 && loc.length < 150) locations.push(loc);
+          ddMatch = ddRe.exec(inner);
+        }
+        if (locations.length > 0) return [...new Set(locations)];
+        // Fallback: strip tags, split by common separators
         const text = inner.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
         const parts = text.split(/[,|]|\s+and\s+/i).map((p) => p.trim()).filter(Boolean);
         for (const p of parts) {
