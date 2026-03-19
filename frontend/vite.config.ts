@@ -8,7 +8,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, path.resolve(__dirname, ".."), "");
   return {
     envDir: path.resolve(__dirname, ".."),
-    base: "/GhostWriter/",
+    base: "/",
     server: {
       host: "::",
       port: 8080,
